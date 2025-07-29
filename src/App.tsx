@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Printer, Download, Image, Edit3, Plus, Trash2, Sparkles } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -80,6 +80,22 @@ function App() {
     },
   });
 
+  useEffect(() => {
+    const savedBuyerDataString = localStorage.getItem('savedBuyerData');
+    if (savedBuyerDataString) {
+      try {
+        const savedBuyer = JSON.parse(savedBuyerDataString);
+        // Perbarui hanya data pembeli di state awal
+        setReceiptData(prevData => ({
+          ...prevData,
+          buyer: savedBuyer
+        }));
+      } catch (error) {
+        console.error("Gagal memuat data pembeli dari localStorage:", error);
+      }
+    }
+  }, []);
+
   const calculateTotals = (items: ShopeeItem[], shipping: number, fee: number, discount: number) => {
     const orderSubtotal = items.reduce((sum, item) => sum + item.subtotal, 0);
     const totalPayment = orderSubtotal + shipping + fee - discount;
@@ -122,10 +138,21 @@ function App() {
 
     try {
 
+      let buyerData;
+      const savedBuyerDataString = localStorage.getItem('savedBuyerData');
 
-      // BARU: Daftar alamat Indonesia yang realistis
-
-      // Ambil produk acak dari daftar lokal
+      if (savedBuyerDataString) {
+        // Jika ada data di localStorage, gunakan data itu
+        buyerData = JSON.parse(savedBuyerDataString);
+      } else {
+        // Jika tidak ada, buat data pembeli baru
+        const randomAddress = fakeAddresses[Math.floor(Math.random() * fakeAddresses.length)];
+        buyerData = {
+          name: generateFakeIndoNameAuto(),
+          phone: `62812${Date.now().toString().slice(-8)}`,
+          address: [randomAddress.line1, randomAddress.line2],
+        };
+      }
       const newItems: ShopeeItem[] = [];
       const numItems = Math.floor(Math.random() * 4) + 1; // 1 atau 2 item
 
@@ -152,9 +179,6 @@ function App() {
       const discount = Math.random() > 0.5 ? 10000 : 0; // Diskon pengiriman
       const newSummary = calculateTotals(newItems, shipping, fee, discount);
 
-      // Pilih alamat acak dari daftar
-      const randomAddress = fakeAddresses[Math.floor(Math.random() * fakeAddresses.length)];
-
       // Susun data nota lengkap
       setReceiptData({
         orderId: `${Date.now().toString().slice(-8)}FRT`,
@@ -164,14 +188,10 @@ function App() {
           today.setDate(today.getDate() - randomDaysAgo);
           return today.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
         })(),
-        sellerName:generateNamaTokoHijau(),
+        sellerName: generateNamaTokoHijau(),
         paymentMethod: 'ShopeePay',
         shippingService: 'Sameday',
-        buyer: {
-          name: generateFakeIndoNameAuto(),
-          phone: `62812${Date.now().toString().slice(-8)}`,
-          address: [randomAddress.line1, randomAddress.line2], // Gunakan alamat acak
-        },
+        buyer: buyerData,
         items: newItems,
         summary: newSummary
       });
@@ -187,6 +207,18 @@ function App() {
   const handleDownload = async (format: 'png' | 'pdf') => {
     const element = document.getElementById('shopee-receipt-content');
     if (!element) return;
+
+    try {
+      const buyerToSave = {
+        name: receiptData.buyer.name,
+        phone: receiptData.buyer.phone,
+        address: receiptData.buyer.address,
+      };
+      localStorage.setItem('savedBuyerData', JSON.stringify(buyerToSave));
+    } catch (error) {
+      console.error("Gagal menyimpan data pembeli:", error);
+    }
+    
     document.querySelector('.action-bar')?.setAttribute('style', 'display: none');
 
     try {
