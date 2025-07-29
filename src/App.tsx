@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Printer, Download, Image, Edit3, Plus, Trash2, Sparkles } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { products } from './utils/products';
 import { fakeAddresses } from './utils/address';
+import { generateFakeIndoNameAuto } from './utils/names';
+import { generateNamaTokoHijau } from './utils/toko';
 
 
 interface ShopeeItem {
@@ -119,38 +121,6 @@ function App() {
     };
 
     try {
-      // DIUBAH: Panggilan API dihapus dan diganti dengan data lokal
-      const sellers: string[] = [
-        "KebunPakTani", "FreshFruit_ID", "SayurSegarJakarta", "WarungBuahIbu",
-        "TaniSehat", "BuahSegarStore", "PetaniMuda", "GreenHarvestID",
-        "SayurOnline", "AgroMart", "PanenHariIni", "TokoBuahSehat",
-        "LadangSubur", "OrganicTani", "SayurOrganik21", "BuahLokalFresh",
-        "PasarTani_ID", "HarvestPoint", "SayurExpress", "FreshAgriStore",
-        "TaniMarket", "BuahKitaStore", "WarungPetani", "FarmBoxID",
-        "SayurBox_ID", "BuahExpress", "AgriCorner", "PetaniKita", "LadangHijau",
-        "FreshFood_ID", "TaniDigital", "SembakoSegar", "BuahNusantara",
-        "AgroSmart", "TaniOnline", "KebunHijau", "FreshHarvest",
-        "TaniHub_JKT", "SayurDelivery", "PanenMart", "BuahKu_ID",
-        "TaniCenter", "PasarOnline", "FarmFreshID", "AgriShop_ID",
-        "FreshBitesID", "TaniKita21", "BuahKampung", "LadangMakmur", "AgriFresh"
-      ];
-
-      const buyers: string[] = [
-        "Andi_Wijaya", "Siti_Aisyah", "Budi_Santoso", "Dewi_Lestari",
-        "Agus_Purnomo", "Nina_Maulida", "Rudi_Hartono", "Tina_Mulyani",
-        "Yoga_Prabowo", "Lina_Safitri", "Fajar_Nugroho", "Ika_Permata",
-        "Hendra_Saputra", "Dina_Wulandari", "Eko_Julianto", "Sari_Rahmawati",
-        "Bayu_Susanto", "Maya_Salsabila", "Irwan_Pratama", "Rina_Kartika",
-        "Dedi_Saputro", "Fitri_Amalia", "Tommy_Ramadhan", "Rosa_Novita",
-        "Rian_Hidayat", "Vina_Andriyani", "Adi_Wibowo", "Putri_Nuraini",
-        "Fahmi_Abdillah", "Anisa_Larasati", "Galih_Hermanto", "Yuli_Anggraini",
-        "Rizky_Fadillah", "Mega_Safira", "Ilham_Firmansyah", "Tika_Nurhaliza",
-        "Rio_Santosa", "Ayu_Noviyanti", "Robby_Alamsyah", "Lulu_Kartini",
-        "Fikri_Maulana", "Nadya_Putri", "Anton_Susilo", "Desi_Susanti",
-        "Reza_Hermawan", "Citra_Pangestu", "Alif_Syahrul", "Winda_Lestari",
-        "Imam_Saputra", "Nabila_Kusuma"
-      ];
-
 
 
       // BARU: Daftar alamat Indonesia yang realistis
@@ -194,11 +164,11 @@ function App() {
           today.setDate(today.getDate() - randomDaysAgo);
           return today.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
         })(),
-        sellerName: sellers[Math.floor(Math.random() * sellers.length)],
+        sellerName:generateNamaTokoHijau(),
         paymentMethod: 'ShopeePay',
         shippingService: 'Sameday',
         buyer: {
-          name: buyers[Math.floor(Math.random() * buyers.length)],
+          name: generateFakeIndoNameAuto(),
           phone: `62812${Date.now().toString().slice(-8)}`,
           address: [randomAddress.line1, randomAddress.line2], // Gunakan alamat acak
         },
