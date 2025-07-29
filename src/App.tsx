@@ -122,6 +122,12 @@ function App() {
         { name: ['Wortel Berastagi Manis'], variation: '500 gr', price: 12000 },
         { name: ['Rujak Buah Segar Komplit', 'dengan Bumbu Kacang Mede'], variation: 'porsi besar', price: 25000 },
         { name: ['Jus Jambu Merah Asli', 'Tanpa Gula Tambahan'], variation: 'botol 500ml', price: 20000 },
+         { name: ['Selada ORGANIK Fresh'], variation: 'pack 200 gr', price: 15000 },
+        { name: ['Paket Sayur Sop ORGANIK', 'Siap Masak'], variation: '1 paket', price: 20000 },
+        { name: ['Pisang Cavendish ORGANIK'], variation: 'per sisir', price: 28000 },
+        { name: ['ECO Friendly Reusable Bag', 'Tas Belanja Ramah Lingkungan'], variation: 'Ukuran Large', price: 19000 },
+        { name: ['Madu Hutan Murni ORGANIK'], variation: 'botol 250ml', price: 85000 },
+        { name: ['Teh Hijau ORGANIK Premium'], variation: 'box 25 sachet', price: 45000 },
       ];
 
       const sellers = ['KebunPakTani', 'FreshFruit_ID', 'SayurSegarJakarta', 'WarungBuahIbu'];
