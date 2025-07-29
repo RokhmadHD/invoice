@@ -1,7 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from 'react';
 import { Printer, Download, Image, Edit3, Plus, Trash2, Sparkles } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { products } from './utils/products';
+import { fakeAddresses } from './utils/address';
 
 
 interface ShopeeItem {
@@ -34,7 +37,12 @@ interface ShopeeReceiptData {
   };
 }
 
+
+
+
+
 function App() {
+  const [editData, setEditData] = useState<ShopeeReceiptData | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [receiptData, setReceiptData] = useState<ShopeeReceiptData>({
@@ -45,10 +53,10 @@ function App() {
     shippingService: 'Reguler',
     buyer: {
       name: 'tensanq',
-      phone: '6289529158428',
+      phone: '-',
       address: [
-        'Dusun Tembalang, Jalan Egong Kecamatan Bejen, RT.4/RW.5, Jlegong, Bejen, KAB.',
-        'TEMANGGUNG, BEJEN, JAWA TENGAH, ID, 56258',
+        '-',
+        '-',
       ],
     },
     items: [
@@ -112,36 +120,47 @@ function App() {
 
     try {
       // DIUBAH: Panggilan API dihapus dan diganti dengan data lokal
-      const products = [
-        { name: ['Mangga Harum Manis Super'], variation: 'per kg', price: 35000 },
-        { name: ['Apel Malang Hijau Renyah'], variation: '500 gr', price: 22000 },
-        { name: ['Durian Montong Palu'], variation: 'per buah (~2kg)', price: 150000 },
-        { name: ['Jeruk Sunkist Impor Manis'], variation: 'per kg', price: 45000 },
-        { name: ['Bayam Segar Organik'], variation: 'per ikat', price: 5000 },
-        { name: ['Tomat Ceri Hidroponik'], variation: 'pack 250 gr', price: 18000 },
-        { name: ['Wortel Berastagi Manis'], variation: '500 gr', price: 12000 },
-        { name: ['Rujak Buah Segar Komplit', 'dengan Bumbu Kacang Mede'], variation: 'porsi besar', price: 25000 },
-        { name: ['Jus Jambu Merah Asli', 'Tanpa Gula Tambahan'], variation: 'botol 500ml', price: 20000 },
-         { name: ['Selada ORGANIK Fresh'], variation: 'pack 200 gr', price: 15000 },
-        { name: ['Paket Sayur Sop ORGANIK', 'Siap Masak'], variation: '1 paket', price: 20000 },
-        { name: ['Pisang Cavendish ORGANIK'], variation: 'per sisir', price: 28000 },
-        { name: ['ECO Friendly Reusable Bag', 'Tas Belanja Ramah Lingkungan'], variation: 'Ukuran Large', price: 19000 },
-        { name: ['Madu Hutan Murni ORGANIK'], variation: 'botol 250ml', price: 85000 },
-        { name: ['Teh Hijau ORGANIK Premium'], variation: 'box 25 sachet', price: 45000 },
+      const sellers: string[] = [
+        "KebunPakTani", "FreshFruit_ID", "SayurSegarJakarta", "WarungBuahIbu",
+        "TaniSehat", "BuahSegarStore", "PetaniMuda", "GreenHarvestID",
+        "SayurOnline", "AgroMart", "PanenHariIni", "TokoBuahSehat",
+        "LadangSubur", "OrganicTani", "SayurOrganik21", "BuahLokalFresh",
+        "PasarTani_ID", "HarvestPoint", "SayurExpress", "FreshAgriStore",
+        "TaniMarket", "BuahKitaStore", "WarungPetani", "FarmBoxID",
+        "SayurBox_ID", "BuahExpress", "AgriCorner", "PetaniKita", "LadangHijau",
+        "FreshFood_ID", "TaniDigital", "SembakoSegar", "BuahNusantara",
+        "AgroSmart", "TaniOnline", "KebunHijau", "FreshHarvest",
+        "TaniHub_JKT", "SayurDelivery", "PanenMart", "BuahKu_ID",
+        "TaniCenter", "PasarOnline", "FarmFreshID", "AgriShop_ID",
+        "FreshBitesID", "TaniKita21", "BuahKampung", "LadangMakmur", "AgriFresh"
       ];
 
-      const sellers = ['KebunPakTani', 'FreshFruit_ID', 'SayurSegarJakarta', 'WarungBuahIbu'];
-      const buyers = ['Andi_Wijaya', 'Siti_Aisyah', 'Budi_Santoso', 'Dewi_Lestari'];
+      const buyers: string[] = [
+        "Andi_Wijaya", "Siti_Aisyah", "Budi_Santoso", "Dewi_Lestari",
+        "Agus_Purnomo", "Nina_Maulida", "Rudi_Hartono", "Tina_Mulyani",
+        "Yoga_Prabowo", "Lina_Safitri", "Fajar_Nugroho", "Ika_Permata",
+        "Hendra_Saputra", "Dina_Wulandari", "Eko_Julianto", "Sari_Rahmawati",
+        "Bayu_Susanto", "Maya_Salsabila", "Irwan_Pratama", "Rina_Kartika",
+        "Dedi_Saputro", "Fitri_Amalia", "Tommy_Ramadhan", "Rosa_Novita",
+        "Rian_Hidayat", "Vina_Andriyani", "Adi_Wibowo", "Putri_Nuraini",
+        "Fahmi_Abdillah", "Anisa_Larasati", "Galih_Hermanto", "Yuli_Anggraini",
+        "Rizky_Fadillah", "Mega_Safira", "Ilham_Firmansyah", "Tika_Nurhaliza",
+        "Rio_Santosa", "Ayu_Noviyanti", "Robby_Alamsyah", "Lulu_Kartini",
+        "Fikri_Maulana", "Nadya_Putri", "Anton_Susilo", "Desi_Susanti",
+        "Reza_Hermawan", "Citra_Pangestu", "Alif_Syahrul", "Winda_Lestari",
+        "Imam_Saputra", "Nabila_Kusuma"
+      ];
+
+
+
+      // BARU: Daftar alamat Indonesia yang realistis
 
       // Ambil produk acak dari daftar lokal
-
-
       const newItems: ShopeeItem[] = [];
-      const numItems = Math.floor(Math.random() * 2) + 1; // 1 atau 2 item
+      const numItems = Math.floor(Math.random() * 4) + 1; // 1 atau 2 item
 
       for (let i = 0; i < numItems; i++) {
         const randomApiProduct = products[Math.floor(Math.random() * products.length)];
-        // const randomApiProduct = apiProducts[Math.floor(Math.random() * apiProducts.length)];
         const quantity = Math.floor(Math.random() * 2) + 1;
 
         // Konversi harga dari USD ke IDR dan bulatkan
@@ -163,6 +182,9 @@ function App() {
       const discount = Math.random() > 0.5 ? 10000 : 0; // Diskon pengiriman
       const newSummary = calculateTotals(newItems, shipping, fee, discount);
 
+      // Pilih alamat acak dari daftar
+      const randomAddress = fakeAddresses[Math.floor(Math.random() * fakeAddresses.length)];
+
       // Susun data nota lengkap
       setReceiptData({
         orderId: `${Date.now().toString().slice(-8)}FRT`,
@@ -178,7 +200,7 @@ function App() {
         buyer: {
           name: buyers[Math.floor(Math.random() * buyers.length)],
           phone: `62812${Date.now().toString().slice(-8)}`,
-          address: ['Jl. Kebon Jeruk No. 8, Kel. Cempaka Putih, Kec. Makmur Jaya', 'KOTA JAKARTA PUSAT, ID, 10110'],
+          address: [randomAddress.line1, randomAddress.line2], // Gunakan alamat acak
         },
         items: newItems,
         summary: newSummary
@@ -224,27 +246,327 @@ function App() {
     }
   };
 
+  const handleEditInvoice = () => {
+    setEditData({ ...receiptData });
+    setIsEditing(true);
+  };
+
+  const handleSaveEdit = () => {
+    if (editData) {
+      // Recalculate totals
+      const newSummary = calculateTotals(
+        editData.items,
+        editData.summary.shippingSubtotal,
+        editData.summary.serviceFee,
+        editData.summary.shippingDiscount
+      );
+      setReceiptData({
+        ...editData,
+        summary: newSummary
+      });
+    }
+    setIsEditing(false);
+    setEditData(null);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditData(null);
+  };
+
+  const handleEditChange = (field: string, value: any, index?: number, subField?: string) => {
+    if (!editData) return;
+
+    const newData = { ...editData };
+
+    if (field === 'buyer' && subField) {
+      if (subField === 'address') {
+        newData.buyer.address = value;
+      } else {
+        (newData.buyer as any)[subField] = value;
+      }
+    } else if (field === 'items' && typeof index === 'number') {
+      if (subField === 'name') {
+        newData.items[index].name = value.split('\n').filter((line: string) => line.trim());
+      } else if (subField === 'price' || subField === 'quantity') {
+        const numValue = parseInt(value) || 0;
+        (newData.items[index] as any)[subField] = numValue;
+        newData.items[index].subtotal = newData.items[index].price * newData.items[index].quantity;
+      } else if (subField) {
+        (newData.items[index] as any)[subField] = value;
+      }
+    } else if (field === 'summary' && subField) {
+      const numValue = parseInt(value) || 0;
+      (newData.summary as any)[subField] = numValue;
+    } else {
+      (newData as any)[field] = value;
+    }
+
+    setEditData(newData);
+  };
+
+  const handleAddItem = () => {
+    if (!editData) return;
+    const newItem: ShopeeItem = {
+      id: editData.items.length + 1,
+      name: ['Produk Baru'],
+      variation: 'Standar',
+      price: 10000,
+      quantity: 1,
+      subtotal: 10000
+    };
+    setEditData({
+      ...editData,
+      items: [...editData.items, newItem]
+    });
+  };
+
+  const handleRemoveItem = (index: number) => {
+    if (!editData || editData.items.length <= 1) return;
+    const newItems = editData.items.filter((_, i) => i !== index);
+    setEditData({
+      ...editData,
+      items: newItems
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gray-200 py-10 px-4 flex flex-col items-center">
       <div className="w-full max-w-4xl mb-8 print:hidden action-bar">
-        <div className="flex flex-wrap items-center justify-center gap-2 bg-white p-4 rounded-lg shadow-md">
-          {/* Action buttons... */}
-          <button onClick={generateFakeReceiptData} disabled={isGenerating} className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors text-sm font-medium disabled:opacity-50">
-            <Sparkles className={`w-4 h-4 ${isGenerating ? 'animate-spin' : ''}`} />
-            {isGenerating ? 'Membuat...' : 'Buat Nota Baru'}
-          </button>
-          <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 bg-gray-200 rounded-md text-sm font-medium hover:bg-gray-300"><Printer className="w-4 h-4" /> Cetak</button>
-          <button onClick={() => handleDownload('png')} className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700"><Image className="w-4 h-4" /> PNG</button>
-          <button onClick={() => handleDownload('pdf')} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700"><Download className="w-4 h-4" /> PDF</button>
+        <div className="flex flex-wrap items-center justify-center gap-2 bg-white p-4 rounded-lg shadow-md w-max mx-auto">
+          {isEditing ? (
+            <>
+              <button onClick={handleSaveEdit} className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-sm font-medium">
+                <Download className="w-4 h-4" />
+                Simpan
+              </button>
+              <button onClick={handleCancelEdit} className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors text-sm font-medium">
+                <Trash2 className="w-4 h-4" />
+                Batal
+              </button>
+            </>
+          ) : (
+            <>
+              <button onClick={generateFakeReceiptData} disabled={isGenerating} className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors text-sm font-medium disabled:opacity-50">
+                <Sparkles className={`w-4 h-4 ${isGenerating ? 'animate-spin' : ''}`} />
+                {isGenerating ? 'Membuat...' : 'Buat Nota Baru'}
+              </button>
+              <button onClick={handleEditInvoice} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium">
+                <Edit3 className="w-4 h-4" />
+                Edit Nota
+              </button>
+              <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 bg-gray-200 rounded-md text-sm font-medium hover:bg-gray-300"><Printer className="w-4 h-4" /> Cetak</button>
+              <button onClick={() => handleDownload('png')} className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700"><Image className="w-4 h-4" /> PNG</button>
+              <button onClick={() => handleDownload('pdf')} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700"><Download className="w-4 h-4" /> PDF</button>
+            </>
+          )}
         </div>
       </div>
 
-      {/* DIUBAH: KONTEN NOTA DENGAN BACKGROUND IMAGE */}
-      <div
-        id="shopee-receipt-content"
-        className="
+      {isEditing && editData ? (
+        <div className="w-full max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6 mb-8" style={{
+          // aspectRatio: 1/1.414
+        }}>
+          <h2 className="text-xl font-bold mb-6 text-gray-800">Edit Nota Pesanan</h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            {/* Basic Info */}
+            <div className="space-y-4">
+              <h3 className="font-semibold text-gray-700">Informasi Dasar</h3>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">No. Pesanan</label>
+                <input
+                  type="text"
+                  value={editData.orderId}
+                  onChange={(e) => handleEditChange('orderId', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Tanggal Transaksi</label>
+                <input
+                  type="text"
+                  value={editData.transactionDate}
+                  onChange={(e) => handleEditChange('transactionDate', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Nama Penjual</label>
+                <input
+                  type="text"
+                  value={editData.sellerName}
+                  onChange={(e) => handleEditChange('sellerName', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Metode Pembayaran</label>
+                <input
+                  type="text"
+                  value={editData.paymentMethod}
+                  onChange={(e) => handleEditChange('paymentMethod', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Jasa Kirim</label>
+                <input
+                  type="text"
+                  value={editData.shippingService}
+                  onChange={(e) => handleEditChange('shippingService', e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+
+            {/* Buyer Info */}
+            <div className="space-y-4">
+              <h3 className="font-semibold text-gray-700">Informasi Pembeli</h3>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Nama Pembeli</label>
+                <input
+                  type="text"
+                  value={editData.buyer.name}
+                  onChange={(e) => handleEditChange('buyer', e.target.value, undefined, 'name')}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">No. Handphone</label>
+                <input
+                  type="text"
+                  value={editData.buyer.phone}
+                  onChange={(e) => handleEditChange('buyer', e.target.value, undefined, 'phone')}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Alamat (pisahkan dengan enter)</label>
+                <textarea
+                  value={editData.buyer.address.join('\n')}
+                  onChange={(e) => handleEditChange('buyer', e.target.value.split('\n'), undefined, 'address')}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Items */}
+          <div className="mb-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-semibold text-gray-700">Produk</h3>
+              <button
+                onClick={handleAddItem}
+                className="flex items-center gap-2 px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+              >
+                <Plus className="w-4 h-4" />
+                Tambah Produk
+              </button>
+            </div>
+
+            {editData.items.map((item, index) => (
+              <div key={index} className="border border-gray-200 rounded-lg p-4 mb-4">
+                <div className="flex justify-between items-start mb-3">
+                  <h4 className="font-medium text-gray-700">Produk {index + 1}</h4>
+                  {editData.items.length > 1 && (
+                    <button
+                      onClick={() => handleRemoveItem(index)}
+                      className="text-red-600 hover:text-red-800"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="lg:col-span-2">
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Nama Produk (pisahkan dengan enter)</label>
+                    <textarea
+                      value={item.name.join('\n')}
+                      onChange={(e) => handleEditChange('items', e.target.value, index, 'name')}
+                      rows={2}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Variasi</label>
+                    <input
+                      type="text"
+                      value={item.variation}
+                      onChange={(e) => handleEditChange('items', e.target.value, index, 'variation')}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Harga</label>
+                    <input
+                      type="number"
+                      value={item.price}
+                      onChange={(e) => handleEditChange('items', e.target.value, index, 'price')}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Kuantitas</label>
+                    <input
+                      type="number"
+                      value={item.quantity}
+                      onChange={(e) => handleEditChange('items', e.target.value, index, 'quantity')}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+                <div className="mt-2 text-right">
+                  <span className="text-sm text-gray-600">Subtotal: </span>
+                  <span className="font-semibold">{formatCurrency(item.subtotal)}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Summary */}
+          <div className="border-t pt-6">
+            <h3 className="font-semibold text-gray-700 mb-4">Ringkasan Pembayaran</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Subtotal Pengiriman</label>
+                <input
+                  type="number"
+                  value={editData.summary.shippingSubtotal}
+                  onChange={(e) => handleEditChange('summary', e.target.value, undefined, 'shippingSubtotal')}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Biaya Layanan</label>
+                <input
+                  type="number"
+                  value={editData.summary.serviceFee}
+                  onChange={(e) => handleEditChange('summary', e.target.value, undefined, 'serviceFee')}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-600 mb-1">Diskon Pengiriman</label>
+                <input
+                  type="number"
+                  value={editData.summary.shippingDiscount}
+                  onChange={(e) => handleEditChange('summary', e.target.value, undefined, 'shippingDiscount')}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div
+          id="shopee-receipt-content"
+          className="
           relative
           w-full max-w-2xl
+          mx-auto
           shadow-lg print:shadow-none 
           font-sans
           bg-white
@@ -253,142 +575,143 @@ function App() {
           bg-no-repeat         /* Jangan diulang */
           bg-top               /* Posisikan di atas */
         "
-        // Atur aspect-ratio agar sesuai dengan gambar A4
-        style={{ aspectRatio: '1 / 1.414' }}
-      >
-        {/* Konten diletakkan di dalam dengan padding untuk memberi ruang */}
-        <div className="relative z-10 p-16 pt-28"> {/* Padding atas besar untuk logo */}
-          {/* Header (sekarang tidak perlu logo) */}
-          <header className="flex justify-between items-start">
-            <div>
-              <h1 className="text-sm">Nota Pesanan</h1>
-            </div>
-          </header>
+          // Atur aspect-ratio agar sesuai dengan gambar A4
+          style={{ aspectRatio: '1 / 1.414' }}
+        >
+          {/* Konten diletakkan di dalam dengan padding untuk memberi ruang */}
+          <div className="relative z-10 p-16 pt-28"> {/* Padding atas besar untuk logo */}
+            {/* Header (sekarang tidak perlu logo) */}
+            <header className="flex justify-between items-start">
+              <div>
+                <h1 className="text-sm">Nota Pesanan</h1>
+              </div>
+            </header>
 
-          {/* Info Utama */}
-          <main className="mt-4 grid grid-cols-2 gap-8 text-xs">
-            {/* Kolom Kiri */}
-            <div className="space-y-3">
-              <div>
-                <h3 className="font-bold text-gray-500">Nama Pembeli:</h3>
-                <p>{receiptData.buyer.name}</p>
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-500">Alamat Pembeli:</h3>
-                {receiptData.buyer.address.map((line, i) => <p key={i}>{line}</p>)}
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-500">No. Handphone Pembeli:</h3>
-                <p>{receiptData.buyer.phone}</p>
-              </div>
-            </div>
-            {/* Kolom Kanan */}
-            <div className="space-y-3">
-              <div>
-                <h3 className="font-bold text-gray-500">Nama Penjual:</h3>
-                <p>{receiptData.sellerName}</p>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
+            {/* Info Utama */}
+            <main className="mt-4 grid grid-cols-2 gap-8 text-xs">
+              {/* Kolom Kiri */}
+              <div className="space-y-3">
                 <div>
-                  <h3 className="font-bold text-gray-500">No. Pesanan</h3>
-                  <p>{receiptData.orderId}</p>
+                  <h3 className="font-bold text-gray-500">Nama Pembeli:</h3>
+                  <p>{receiptData.buyer.name}</p>
                 </div>
                 <div>
-                  <h3 className="font-bold text-gray-500">Tanggal Transaksi</h3>
-                  <p>{receiptData.transactionDate}</p>
+                  <h3 className="font-bold text-gray-500">Alamat Pembeli:</h3>
+                  {receiptData.buyer.address.map((line, i) => <p key={i}>{line}</p>)}
                 </div>
                 <div>
-                  <h3 className="font-bold text-gray-500">Metode Pembayaran</h3>
-                  <p>{receiptData.paymentMethod}</p>
-                </div>
-                <div>
-                  <h3 className="font-bold text-gray-500">Jasa Kirim</h3>
-                  <p>{receiptData.shippingService}</p>
+                  <h3 className="font-bold text-gray-500">No. Handphone Pembeli:</h3>
+                  <p>{receiptData.buyer.phone}</p>
                 </div>
               </div>
-            </div>
-          </main>
+              {/* Kolom Kanan */}
+              <div className="space-y-3">
+                <div>
+                  <h3 className="font-bold text-gray-500">Nama Penjual:</h3>
+                  <p>{receiptData.sellerName}</p>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <h3 className="font-bold text-gray-500">No. Pesanan</h3>
+                    <p>{receiptData.orderId}</p>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-500">Tanggal Transaksi</h3>
+                    <p>{receiptData.transactionDate}</p>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-500">Metode Pembayaran</h3>
+                    <p>{receiptData.paymentMethod}</p>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-gray-500">Jasa Kirim</h3>
+                    <p>{receiptData.shippingService}</p>
+                  </div>
+                </div>
+              </div>
+            </main>
 
-          {/* Tabel Rincian Pesanan */}
-          <section className="mt-6">
-            <h3 className="font-bold text-gray-500 mb-2 text-xs">Rincian Pesanan</h3>
-            <table className="w-full text-left text-xs">
-              <thead className="border-y border-gray-200">
-                <tr>
-                  <th className="p-2 w-8">No.</th>
-                  <th className="p-2 w-2/5">Produk</th>
-                  <th className="p-2 w-1/5">Variasi</th>
-                  <th className="p-2 text-right">Harga Produk</th>
-                  <th className="p-2 text-center">Kuantitas</th>
-                  <th className="p-2 text-right">Subtotal</th>
-                </tr>
-              </thead>
-              <tbody>
-                {receiptData.items.map((item, index) => (
-                  <tr key={item.id} className="border-b border-gray-200">
-                    <td className="p-2">{index + 1}</td>
-                    <td className="p-2">
-                      {item.name.map((line, i) => <p key={i}>{line}</p>)}
-                    </td>
-                    <td className="p-2">{item.variation}</td>
-                    <td className="p-2 text-right">{formatCurrency(item.price)}</td>
-                    <td className="p-2 text-center">{item.quantity}</td>
-                    <td className="p-2 text-right font-semibold">{formatCurrency(item.subtotal)}</td>
+            {/* Tabel Rincian Pesanan */}
+            <section className="mt-6">
+              <h3 className="font-bold text-gray-500 mb-2 text-xs">Rincian Pesanan</h3>
+              <table className="w-full text-left text-xs">
+                <thead className="border-y border-gray-200">
+                  <tr>
+                    <th className="p-2 w-8">No.</th>
+                    <th className="p-2 w-2/5">Produk</th>
+                    <th className="p-2 w-1/5">Variasi</th>
+                    <th className="p-2 text-right">Harga Produk</th>
+                    <th className="p-2 text-center">Kuantitas</th>
+                    <th className="p-2 text-right">Subtotal</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </section>
+                </thead>
+                <tbody>
+                  {receiptData.items.map((item, index) => (
+                    <tr key={item.id} className="border-b border-gray-200">
+                      <td className="p-2">{index + 1}</td>
+                      <td className="p-2">
+                        {item.name.map((line, i) => <p key={i}>{line}</p>)}
+                      </td>
+                      <td className="p-2">{item.variation}</td>
+                      <td className="p-2 text-right">{formatCurrency(item.price)}</td>
+                      <td className="p-2 text-center">{item.quantity}</td>
+                      <td className="p-2 text-right font-semibold">{formatCurrency(item.subtotal)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </section>
 
-          {/* Ringkasan Pembayaran */}
-          <section className="mt-4 flex justify-end">
-            <div className="w-2/5 text-xs space-y-2">
-              <div className="flex justify-between">
-                <span>Subtotal</span>
-                <span className="font-semibold">{formatCurrency(receiptData.summary.orderSubtotal)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Total Kuantitas (Aktif)</span>
-                <span>{receiptData.items.reduce((sum, item) => sum + item.quantity, 0)} produk</span>
-              </div>
-              <hr className="my-2" />
-              <div className="flex justify-between">
-                <span className="text-gray-600">Subtotal Pesanan</span>
-                <span>{formatCurrency(receiptData.summary.orderSubtotal)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Subtotal Pengiriman</span>
-                <span>{formatCurrency(receiptData.summary.shippingSubtotal)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Biaya Layanan</span>
-                <span>{formatCurrency(receiptData.summary.serviceFee)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Total Diskon Pengiriman</span>
-                <span>-{formatCurrency(receiptData.summary.shippingDiscount)}</span>
-              </div>
-
-              <div className="bg-gray-50 border border-gray-200 p-2 rounded-md mt-2">
-                <div className="flex justify-between items-center">
-                  <span className="font-bold">Total Pembayaran</span>
-                  <span className="text-lg font-bold text-gray-600">{formatCurrency(receiptData.summary.totalPayment)}</span>
+            {/* Ringkasan Pembayaran */}
+            <section className="mt-4 flex justify-end">
+              <div className="w-2/5 text-xs space-y-2">
+                <div className="flex justify-between">
+                  <span>Subtotal</span>
+                  <span className="font-semibold">{formatCurrency(receiptData.summary.orderSubtotal)}</span>
                 </div>
+                <div className="flex justify-between">
+                  <span>Total Kuantitas (Aktif)</span>
+                  <span>{receiptData.items.reduce((sum, item) => sum + item.quantity, 0)} produk</span>
+                </div>
+                <hr className="my-2" />
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Subtotal Pesanan</span>
+                  <span>{formatCurrency(receiptData.summary.orderSubtotal)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Subtotal Pengiriman</span>
+                  <span>{formatCurrency(receiptData.summary.shippingSubtotal)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Biaya Layanan</span>
+                  <span>{formatCurrency(receiptData.summary.serviceFee)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Total Diskon Pengiriman</span>
+                  <span>-{formatCurrency(receiptData.summary.shippingDiscount)}</span>
+                </div>
+
+                <div className="bg-gray-50 border border-gray-200 p-2 rounded-md mt-2">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold">Total Pembayaran</span>
+                    <span className="text-lg font-bold text-gray-600">{formatCurrency(receiptData.summary.totalPayment)}</span>
+                  </div>
+                </div>
+
+                <p className="text-gray-500 pt-2 text-center">Biaya-biaya yang ditagihkan oleh Shopee (jika ada) sudah termasuk PPN</p>
               </div>
+            </section>
 
-              <p className="text-gray-500 pt-2 text-center">Biaya-biaya yang ditagihkan oleh Shopee (jika ada) sudah termasuk PPN</p>
-            </div>
-          </section>
-
-          {/* Footer */}
-          <footer className="text-xs text-gray-500 mt-10 pt-4 border-t border-gray-200">
-            <p className="font-bold">PT Shopee International Indonesia</p>
-            <p>Sopo Del Tower, 15th Floor, Jl. Mega Kuningan Barat III Lot 10.1-6, Kuningan Timur, Setiabudi,</p>
-            <p>Kota Adm. Jakarta Selatan, DKI Jakarta, 12950</p>
-            <p>NPWP: 07.366.669.0-003.1000</p>
-          </footer>
+            {/* Footer */}
+            <footer className="text-xs text-gray-500 mt-10 pt-4 border-t border-gray-200">
+              <p className="font-bold">PT Shopee International Indonesia</p>
+              <p>Sopo Del Tower, 15th Floor, Jl. Mega Kuningan Barat III Lot 10.1-6, Kuningan Timur, Setiabudi,</p>
+              <p>Kota Adm. Jakarta Selatan, DKI Jakarta, 12950</p>
+              <p>NPWP: 07.366.669.0-003.1000</p>
+            </footer>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
