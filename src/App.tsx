@@ -55,10 +55,10 @@ function App() {
     shippingService: 'Reguler',
     buyer: {
       name: 'tensanq',
-      phone: '-',
+      phone: '089529158424',
       address: [
-        '-',
-        '-',
+        'PT Shopee International Indonesia, Gedung Pacific Century Place Lt. 22.23.25.26 SCBD LOT 10,',
+        'Jalan Jenderal Sudirman Kav. 52-53, RT.005/RW.003, Senayan, Kebayoran Baru, Jakarta Selatan, DKI Jakarta',
       ],
     },
     items: [
@@ -161,7 +161,8 @@ function App() {
         const quantity = Math.floor(Math.random() * 2) + 1;
 
         // Konversi harga dari USD ke IDR dan bulatkan
-        const priceInIdr = Math.round((randomApiProduct.price * 1) / 500) * 500;
+        // const priceInIdr = Math.round((randomApiProduct.price * 1) / 500) * 500;
+        const priceInIdr = randomApiProduct.price
 
         newItems.push({
           id: i + 1,
@@ -174,7 +175,7 @@ function App() {
       }
 
       // Hitung total
-      const shipping = 15000;
+      const shipping = Math.floor(Math.random() * 15000) + 2000;
       const fee = 1000;
       const discount = Math.random() > 0.5 ? 10000 : 0; // Diskon pengiriman
       const newSummary = calculateTotals(newItems, shipping, fee, discount);
@@ -218,7 +219,7 @@ function App() {
     } catch (error) {
       console.error("Gagal menyimpan data pembeli:", error);
     }
-    
+
     document.querySelector('.action-bar')?.setAttribute('style', 'display: none');
 
     try {
@@ -581,7 +582,7 @@ function App() {
           style={{ aspectRatio: '1 / 1.414' }}
         >
           {/* Konten diletakkan di dalam dengan padding untuk memberi ruang */}
-          <div className="relative z-10 p-16 pt-28"> {/* Padding atas besar untuk logo */}
+          <div className="relative z-10 p-16 pt-24"> {/* Padding atas besar untuk logo */}
             {/* Header (sekarang tidak perlu logo) */}
             <header className="flex justify-between items-start">
               <div>
@@ -590,59 +591,63 @@ function App() {
             </header>
 
             {/* Info Utama */}
-            <main className="mt-4 grid grid-cols-2 gap-8 text-xs">
+            <main className="mt-2 grid grid-cols-2 gap-2 text-xs bg-gray-50 p-2 rounded">
               {/* Kolom Kiri */}
-              <div className="space-y-3">
-                <div>
-                  <h3 className="font-bold text-gray-500">Nama Pembeli:</h3>
+              <div className="space-y-2">
+                <div className='flex gap-2'>
+                  <h3 className="font-bold text-black">Nama Pembeli:</h3>
                   <p>{receiptData.buyer.name}</p>
-                </div>
-                <div>
-                  <h3 className="font-bold text-gray-500">Alamat Pembeli:</h3>
-                  {receiptData.buyer.address.map((line, i) => <p key={i}>{line}</p>)}
-                </div>
-                <div>
-                  <h3 className="font-bold text-gray-500">No. Handphone Pembeli:</h3>
-                  <p>{receiptData.buyer.phone}</p>
                 </div>
               </div>
               {/* Kolom Kanan */}
-              <div className="space-y-3">
-                <div>
-                  <h3 className="font-bold text-gray-500">Nama Penjual:</h3>
-                  <p>{receiptData.sellerName}</p>
+              <div className="space-y-2">
+                <div className='flex gap-2'>
+                  <h3 className="font-bold text-black">Nama Penjual:</h3>
+                  <p className='uppercase'>{receiptData.sellerName}</p>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <h3 className="font-bold text-gray-500">No. Pesanan</h3>
-                    <p>{receiptData.orderId}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-gray-500">Tanggal Transaksi</h3>
-                    <p>{receiptData.transactionDate}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-gray-500">Metode Pembayaran</h3>
-                    <p>{receiptData.paymentMethod}</p>
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-gray-500">Jasa Kirim</h3>
-                    <p>{receiptData.shippingService}</p>
-                  </div>
+              </div>
+              <div className="space-y-2 col-span-full">
+                <div>
+                  <h3 className="font-bold text-black">Alamat Pembeli:</h3>
+                  {receiptData.buyer.address.map((line, i) => <p key={i} className='w-full'>{line}</p>)}
+                </div>
+                <div>
+                  <h3 className="font-bold text-black">No. Handphone Pembeli:</h3>
+                  <p>{receiptData.buyer.phone}</p>
                 </div>
               </div>
             </main>
+            <section className='mt-5 text-xs'>
+              <div className="grid grid-cols-4 gap-4">
+                <div>
+                  <h3 className="font-bold text-black">No. Pesanan</h3>
+                  <p>{receiptData.orderId}</p>
+                </div>
+                <div>
+                  <h3 className="font-bold text-black">Tanggal Transaksi</h3>
+                  <p>{receiptData.transactionDate}</p>
+                </div>
+                <div>
+                  <h3 className="font-bold text-black inline-flex">Metode Pembayaran</h3>
+                  <p>{receiptData.paymentMethod}</p>
+                </div>
+                <div>
+                  <h3 className="font-bold text-black">Jasa Kirim</h3>
+                  <p>{receiptData.shippingService}</p>
+                </div>
+              </div>
+            </section>
 
             {/* Tabel Rincian Pesanan */}
             <section className="mt-6">
-              <h3 className="font-bold text-gray-500 mb-2 text-xs">Rincian Pesanan</h3>
+              <h3 className="font-bold text-black mb-2 text-xs">Rincian Pesanan</h3>
               <table className="w-full text-left text-xs">
                 <thead className="border-y border-gray-200">
                   <tr>
                     <th className="p-2 w-8">No.</th>
                     <th className="p-2 w-2/5">Produk</th>
                     <th className="p-2 w-1/5">Variasi</th>
-                    <th className="p-2 text-right">Harga Produk</th>
+                    <th className="p-2 text-right inline-block w-max">Harga Produk</th>
                     <th className="p-2 text-center">Kuantitas</th>
                     <th className="p-2 text-right">Subtotal</th>
                   </tr>
@@ -676,36 +681,36 @@ function App() {
                   <span>{receiptData.items.reduce((sum, item) => sum + item.quantity, 0)} produk</span>
                 </div>
                 <hr className="my-2" />
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Subtotal Pesanan</span>
-                  <span>{formatCurrency(receiptData.summary.orderSubtotal)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Subtotal Pengiriman</span>
-                  <span>{formatCurrency(receiptData.summary.shippingSubtotal)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Biaya Layanan</span>
-                  <span>{formatCurrency(receiptData.summary.serviceFee)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-600">Total Diskon Pengiriman</span>
-                  <span>-{formatCurrency(receiptData.summary.shippingDiscount)}</span>
-                </div>
+                <div className="bg-gray-50 border border-gray-200 p-2 rounded-md mt-2 space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Subtotal Pesanan</span>
+                    <span>{formatCurrency(receiptData.summary.orderSubtotal)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Subtotal Pengiriman</span>
+                    <span>{formatCurrency(receiptData.summary.shippingSubtotal)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Biaya Layanan</span>
+                    <span>{formatCurrency(receiptData.summary.serviceFee)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Total Diskon Pengiriman</span>
+                    <span>-{formatCurrency(receiptData.summary.shippingDiscount)}</span>
+                  </div>
 
-                <div className="bg-gray-50 border border-gray-200 p-2 rounded-md mt-2">
                   <div className="flex justify-between items-center">
                     <span className="font-bold">Total Pembayaran</span>
-                    <span className="text-lg font-bold text-gray-600">{formatCurrency(receiptData.summary.totalPayment)}</span>
+                    <span className="text-total font-bold text-black">{formatCurrency(receiptData.summary.totalPayment)}</span>
                   </div>
                 </div>
 
-                <p className="text-gray-500 pt-2 text-center">Biaya-biaya yang ditagihkan oleh Shopee (jika ada) sudah termasuk PPN</p>
+                <p className="text-black pt-2 text-center">Biaya-biaya yang ditagihkan oleh Shopee (jika ada) sudah termasuk PPN</p>
               </div>
             </section>
 
             {/* Footer */}
-            <footer className="text-xs text-gray-500 mt-10 pt-4 border-t border-gray-200">
+            <footer className="text-xs text-black mt-10 pt-4 border-t border-gray-200">
               <p className="font-bold">PT Shopee International Indonesia</p>
               <p>Sopo Del Tower, 15th Floor, Jl. Mega Kuningan Barat III Lot 10.1-6, Kuningan Timur, Setiabudi,</p>
               <p>Kota Adm. Jakarta Selatan, DKI Jakarta, 12950</p>

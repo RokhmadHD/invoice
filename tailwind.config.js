@@ -10,8 +10,13 @@ export default {
       fontFamily: {
         mono: ['"IBM Plex Mono"', 'monospace'], // <-- Tambahkan ini
       },
+      fontSize: {
+        "total": {
+          'font-size': '1.12rem',
+          'line-height': '1.75rem'
+        }
+      }
     },
   },
   plugins: [],
 };
-  
