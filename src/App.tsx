@@ -96,6 +96,8 @@ function App() {
     }
   }, []);
 
+  const handleRemoveStorage = () => (localStorage.removeItem('savedBuyerData'));
+
   const calculateTotals = (items: ShopeeItem[], shipping: number, fee: number, discount: number) => {
     const orderSubtotal = items.reduce((sum, item) => sum + item.subtotal, 0);
     const totalPayment = orderSubtotal + shipping + fee - discount;
@@ -361,6 +363,7 @@ function App() {
               <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 bg-gray-200 rounded-md text-sm font-medium hover:bg-gray-300"><Printer className="w-4 h-4" /> Cetak</button>
               <button onClick={() => handleDownload('png')} className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700"><Image className="w-4 h-4" /> PNG</button>
               <button onClick={() => handleDownload('pdf')} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700"><Download className="w-4 h-4" /> PDF</button>
+              <button onClick={handleRemoveStorage} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700"><Download className="w-4 h-4" />Reset Alamat</button>
             </>
           )}
         </div>
